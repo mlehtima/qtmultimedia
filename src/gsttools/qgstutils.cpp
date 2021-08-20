@@ -513,9 +513,13 @@ Q_GLOBAL_STATIC(FactoryCameraInfoMap, qt_camera_device_info);
 QVector<QGstUtils::CameraInfo> QGstUtils::enumerateCameras(GstElementFactory *factory)
 {
     static QElapsedTimer camerasCacheAgeTimer;
-    if (camerasCacheAgeTimer.isValid() && camerasCacheAgeTimer.elapsed() > 500) // ms
+    if (camerasCacheAgeTimer.isValid() && camerasCacheAgeTimer.elapsed() > 500) {// ms
         qt_camera_device_info()->clear();
 
+        qWarning() << "qt_camera_device_info()->clear()";
+    }
+
+    qWarning() << "enumerateCameras";
     FactoryCameraInfoMap::const_iterator it = qt_camera_device_info()->constFind(factory);
     if (it != qt_camera_device_info()->constEnd())
         return *it;
@@ -548,10 +552,15 @@ QVector<QGstUtils::CameraInfo> QGstUtils::enumerateCameras(GstElementFactory *fa
                 GstElement *camera = g_object_class_find_property(objectClass, "sensor-mount-angle")
                         ? gst_element_factory_create(factory, 0)
                         : 0;
+                qWarning() << "checking sensor-mount-angle";
                 if (camera) {
+                    qWarning() << "sensor-mount-angle found";
                     if (gst_element_set_state(camera, GST_STATE_READY) != GST_STATE_CHANGE_SUCCESS) {
+                        qWarning() << "gst_element_set_state(camera, GST_STATE_READY) != GST_STATE_CHANGE_SUCCESS";
                         // no-op
-                    } else for (int i = 0; i <= max; ++i) {
+                    }
+                    for (int i = 0; i <= max; ++i) {
+                        qWarning() << "looping cameras: " << i;
                         gint orientation = 0;
                         gint direction = QCamera::UnspecifiedPosition;
                         g_object_set(G_OBJECT(camera), "camera-device", i, NULL);
